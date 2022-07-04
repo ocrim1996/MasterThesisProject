@@ -4,3 +4,4 @@
 /__pycache__
 /BranchAndBound
 /.DS_Store
+/test_Branch_and_Bound.py

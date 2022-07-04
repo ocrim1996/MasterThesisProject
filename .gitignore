@@ -1,0 +1,6 @@
+/.idea
+/venv
+/files
+/__pycache__
+/BranchAndBound
+/.DS_Store

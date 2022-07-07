@@ -158,6 +158,7 @@ class SMOAlgorithm:
 
         return f_star, N_lists
 
+    # Risolve i vari passi dell'algoritmo SMO Multistart con Perturbazione (ILS) applicato a problemi StQP.
     def solve_problem_multistart_random_points_perturbation(self, n_max, m_max, eps):
         N_max = n_max
         M_max = m_max

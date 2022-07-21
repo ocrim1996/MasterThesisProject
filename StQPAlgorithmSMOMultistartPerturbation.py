@@ -1,8 +1,8 @@
 import copy
-
 import numpy as np
 import TwoDimensionProblemStQP as tdp
 import perturbation as pb
+import utility_functions as uf
 
 class SMOAlgorithm:
     def __init__(self, n, Q, c):
@@ -135,28 +135,26 @@ class SMOAlgorithm:
     def solve_problem_multistart_random_points(self, n_max):
         N_max = n_max
         f_star = np.Inf
-        N_lists = []
 
         N = 0
         while N <= N_max:
-            self.vectorX = np.random.random_sample(self.n)
-            self.vectorX = self.vectorX / np.sum(self.vectorX)
-            self.vectorG = np.dot(self.Q, self.vectorX) + self.vectorC
-            self.mx = 1.
-            self.MX = -1.
+            #self.vectorX = np.random.random_sample(self.n)
+            #self.vectorX = self.vectorX / np.sum(self.vectorX)
+            self.vectorX = uf.create_vector_uniform(self.n)
+
+            #self.vectorG = np.dot(self.Q, self.vectorX) + self.vectorC
+            #self.mx = 1.
+            #self.MX = -1.
 
             tmp, _ = self.solve_problem(self.vectorX)
 
             if tmp < f_star:
                 f_star = tmp
-                N_lists.append(N)
                 N = 0
             else:
                 N = N + 1
-                if N == N_max:
-                    N_lists.append(N)
 
-        return f_star, N_lists
+        return f_star
 
     # Risolve i vari passi dell'algoritmo SMO Multistart con Perturbazione (ILS) applicato a problemi StQP.
     def solve_problem_multistart_random_points_perturbation(self, n_max, m_max, eps):
@@ -171,9 +169,9 @@ class SMOAlgorithm:
         while N < N_max:
             self.vectorX = np.random.random_sample(self.n)
             self.vectorX = self.vectorX / np.sum(self.vectorX)
-            self.vectorG = np.dot(self.Q, self.vectorX) + self.vectorC
-            self.mx = 1.
-            self.MX = -1.
+            #self.vectorG = np.dot(self.Q, self.vectorX) + self.vectorC
+            #self.mx = 1.
+            #self.MX = -1.
 
             solSmo, vectX = self.solve_problem(self.vectorX)
 
@@ -193,6 +191,7 @@ class SMOAlgorithm:
             else:
                 N = N + 1
 
+        print(vectX)
         return f_star
 
     # Multistart con Perturbazioni

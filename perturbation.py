@@ -1,6 +1,6 @@
 import random
 import numpy as np
-
+import utility_functions as uf
 
 # Prima regola di perturbazione del vettore vectorX.
 def perturbation1(vectorX):
@@ -39,4 +39,10 @@ def perturbation2(vectorX, epsilon, dim):
     x_perturb = (1 - rho) * vectorX + (rho * x_tilde)
     return x_perturb
 
+
+# Exchange all variables non zero except one.
+def perturbation3(vectorX, non_zero_indexes, complementary_indexes):
+    for index in range(len(non_zero_indexes)):
+        uf.swap_positions(vectorX, non_zero_indexes[index], complementary_indexes[index])
+    return vectorX
 

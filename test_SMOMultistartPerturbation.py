@@ -98,7 +98,8 @@ for param in params:
     print("Numero di volte corretto:", len(minimums_times))
 """
 
-params = [10, 15, 20]
+#params = [10, 15, 20]
+params = [[10, 10], [10, 15], [10, 20], [15, 10], [15, 15], [15, 20], [20, 10], [20, 15], [20, 20]]
 
 for param in params:
     obj_func_minimums = []
@@ -107,8 +108,8 @@ for param in params:
     for i in range(100):
         #print("Iterazione:", i)
         start_time = tm.default_timer()
-        solution = problemSMO.solve_problem_multistart_random_points(param)
-        #solution = problemSMO.solve_problem_multistart_random_points_perturbation(param[0], param[1], param[2])
+        #solution = problemSMO.solve_problem_multistart_random_points(param)
+        solution = problemSMO.solve_problem_multistart_random_points_perturbation(param[0], param[1])
         stop_time = tm.default_timer()
         time_exe = stop_time - start_time
 
@@ -120,7 +121,7 @@ for param in params:
     #index = obj_func_minimums.index(obj_func_minimum)
     #min_time = min_times[index]
 
-    indexes = [i for i, x in enumerate(obj_func_minimums) if x == obj_func_minimum]
+    indexes = [i for i, x in enumerate(obj_func_minimums) if format(x, '.6f') == format(obj_func_minimum, '.6f')]
     minimums_times = []
 
     for i in indexes:
@@ -130,8 +131,8 @@ for param in params:
     avg_time = statistics.mean(minimums_times)
 
     print("\nPROBLEM:", prob_file_name.split("/")[2][:-4])
-    #print("Parametri --> Nmax: {}, Mmax: {}, eps: {}".format(param[0], param[1], param[2]))
-    print("Parametri --> Nmax: {}".format(param))
+    print("Parametri --> Nmax: {}, Mmax: {}".format(param[0], param[1]))
+    #print("Parametri --> Nmax: {}".format(param))
     print("Objective function minimum:", obj_func_minimum)
     print("Avg minimization time:", avg_time)
     print("Numero di volte corretto:", len(minimums_times))

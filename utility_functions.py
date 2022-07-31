@@ -1,10 +1,11 @@
 import numpy as np
 import random
-
+import math
 
 # Create vector 1/m, 0, ...., 1/m, 0, ...
 def create_vector_uniform(dim):
     m = int(dim/10)
+    #m = math.floor(dim/2)
     vectX = np.zeros(dim, dtype=float)
     indexes = random.sample(range(dim), m)
     vectX[indexes] = 1/m

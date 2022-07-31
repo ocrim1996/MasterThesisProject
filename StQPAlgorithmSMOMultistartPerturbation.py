@@ -3,6 +3,7 @@ import numpy as np
 import TwoDimensionProblemStQP as tdp
 import perturbation as pb
 import utility_functions as uf
+import global_optimum as go
 
 class SMOAlgorithm:
     def __init__(self, n, Q, c):
@@ -131,6 +132,7 @@ class SMOAlgorithm:
 
         return solSmo
 
+    """
     # Risolve i vari passi dell'algoritmo SMO Multistart applicato a problemi StQP.
     def solve_problem_multistart_random_points(self, n_max):
         N_max = n_max
@@ -138,13 +140,7 @@ class SMOAlgorithm:
 
         N = 0
         while N <= N_max:
-            #self.vectorX = np.random.random_sample(self.n)
-            #self.vectorX = self.vectorX / np.sum(self.vectorX)
             self.vectorX = uf.create_vector_uniform(self.n)
-
-            #self.vectorG = np.dot(self.Q, self.vectorX) + self.vectorC
-            #self.mx = 1.
-            #self.MX = -1.
 
             tmp, _ = self.solve_problem(self.vectorX)
 
@@ -157,26 +153,21 @@ class SMOAlgorithm:
         return f_star
 
     # Risolve i vari passi dell'algoritmo SMO Multistart con Perturbazione (ILS) applicato a problemi StQP.
-    def solve_problem_multistart_random_points_perturbation(self, n_max, m_max, eps):
+    def solve_problem_multistart_random_points_perturbation(self, n_max, m_max):
         N_max = n_max
         M_max = m_max
-        epsilon = eps
 
         f_star = np.Inf
         N = 0
         M = 0
 
         while N < N_max:
-            self.vectorX = np.random.random_sample(self.n)
-            self.vectorX = self.vectorX / np.sum(self.vectorX)
-            #self.vectorG = np.dot(self.Q, self.vectorX) + self.vectorC
-            #self.mx = 1.
-            #self.MX = -1.
 
+            self.vectorX = uf.create_vector_uniform(self.n)
             solSmo, vectX = self.solve_problem(self.vectorX)
 
             while M < M_max:
-                vectZ = pb.perturbation2(vectX, epsilon, self.n)
+                vectZ = pb.perturbation3(vectX)
                 tmp, vectZ = self.solve_problem(vectZ)
                 if tmp < solSmo:
                     solSmo = tmp
@@ -191,8 +182,122 @@ class SMOAlgorithm:
             else:
                 N = N + 1
 
-        print(vectX)
         return f_star
+    """
+
+    """
+    # Risolve i vari passi dell'algoritmo SMO Multistart applicato a problemi StQP.
+    def solve_problem_multistart_random_points(self, n_max):
+        N_max = n_max
+        f_star = np.Inf
+
+        N = 0
+        smo_counts = 0
+        while N <= N_max:
+            self.vectorX = uf.create_vector_uniform(self.n)
+            tmp, _ = self.solve_problem(self.vectorX)
+            smo_counts = smo_counts + 1
+
+            if tmp < f_star:
+                f_star = tmp
+                N = 0
+            else:
+                N = N + 1
+
+        return f_star, smo_counts
+
+    # Risolve i vari passi dell'algoritmo SMO Multistart con Perturbazione (ILS) applicato a problemi StQP.
+    def solve_problem_multistart_random_points_perturbation(self, n_max, m_max):
+        N_max = n_max
+        M_max = m_max
+
+        f_star = np.Inf
+        N = 0
+        M = 0
+        smo_counts = 0
+        while N < N_max:
+
+            self.vectorX = uf.create_vector_uniform(self.n)
+            solSmo, vectX = self.solve_problem(self.vectorX)
+            smo_counts = smo_counts + 1
+
+            while M < M_max:
+                vectZ = pb.perturbation3(vectX)
+                tmp, vectZ = self.solve_problem(vectZ)
+                smo_counts = smo_counts + 1
+                if tmp < solSmo:
+                    solSmo = tmp
+                    vectX = vectZ
+                    M = 0
+                else:
+                    M = M + 1
+
+            if solSmo < f_star:
+                f_star = solSmo
+                N = 0
+            else:
+                N = N + 1
+
+        return f_star, smo_counts
+    """
+
+    # Risolve i vari passi dell'algoritmo SMO Multistart applicato a problemi StQP.
+    def solve_problem_multistart_random_points(self, problem):
+        f_star = np.Inf
+        global_optimum = go.optima[problem]
+        smo_counts = 0
+        is_not_global_optimum = True
+
+        while is_not_global_optimum:
+            self.vectorX = uf.create_vector_uniform(self.n)
+            tmp, _ = self.solve_problem(self.vectorX)
+            smo_counts = smo_counts + 1
+
+            if tmp < f_star:
+                f_star = tmp
+
+            if format(f_star, '.6f') == format(global_optimum, '.6f'):
+                is_not_global_optimum = False
+
+        return f_star, smo_counts
+
+    # Risolve i vari passi dell'algoritmo SMO Multistart con Perturbazione (ILS) applicato a problemi StQP.
+    def solve_problem_multistart_random_points_perturbation(self, problem, m_max):
+
+        M_max = m_max
+        f_star = np.Inf
+        global_optimum = go.optima[problem]
+        M = 0
+        smo_counts = 0
+        is_not_global_optimum = True
+
+        while is_not_global_optimum:
+
+            self.vectorX = uf.create_vector_uniform(self.n)
+            solSmo, vectX = self.solve_problem(self.vectorX)
+            smo_counts = smo_counts + 1
+
+            while M < M_max:
+                vectZ = pb.perturbation3(vectX)
+                tmp, vectZ = self.solve_problem(vectZ)
+                smo_counts = smo_counts + 1
+                if tmp < solSmo:
+                    solSmo = tmp
+                    vectX = vectZ
+                    M = 0
+                else:
+                    M = M + 1
+
+                if format(solSmo, '.6f') == format(global_optimum, '.6f'):
+                    return solSmo, smo_counts
+
+            if solSmo < f_star:
+                f_star = solSmo
+
+            if format(f_star, '.6f') == format(global_optimum, '.6f'):
+                is_not_global_optimum = False
+
+        return f_star, smo_counts
 
     # Multistart con Perturbazioni
     def solve_problem_multistart_perturbation(self):

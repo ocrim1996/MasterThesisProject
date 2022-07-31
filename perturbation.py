@@ -13,19 +13,10 @@ def perturbation1(vectorX):
 
     rho = random.uniform(0, 1)
 
-    # for h, value in enumerate(vectorX):
-    #     if h == index_i:
-    #         value = value - (rho * value)
-    #         vectorX[h] = value
-    #     elif h == index_j:
-    #         value = value + (rho * vectorX[index_i])
-    #         vectorX[h] = value
-
     value = vectorX[index_i]
     diff = rho * value
     vectorX[index_i] -= diff
     vectorX[index_j] += diff
-
 
     return vectorX
 
@@ -41,8 +32,13 @@ def perturbation2(vectorX, epsilon, dim):
 
 
 # Exchange all variables non zero except one.
-def perturbation3(vectorX, non_zero_indexes, complementary_indexes):
-    for index in range(len(non_zero_indexes)):
-        uf.swap_positions(vectorX, non_zero_indexes[index], complementary_indexes[index])
+def perturbation3(vectorX):
+    non_zero_indexes, complementary_indexes = uf.indexes_list(vectorX)
+    if len(non_zero_indexes) <= len(complementary_indexes):
+        for index in range(len(non_zero_indexes)):
+            uf.swap_positions(vectorX, non_zero_indexes[index], complementary_indexes[index])
+    else:
+        for index in range(len(complementary_indexes)):
+            uf.swap_positions(vectorX, non_zero_indexes[index], complementary_indexes[index])
     return vectorX
 

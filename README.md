@@ -9,3 +9,9 @@ A fundamental point of the SMO algorithm is the choice of the starting point fro
 ## Files
 - Thesis (in italian) → [PDF](thesis_pdf/thesis.pdf)
 - Presentation (in italian) → [PDF](thesis_pdf/presentation.pdf)
+
+## To Run
+To run the project, you have to run ***test_xxx.py*** files:
+```shell
+python3 test_xxx.py
+```

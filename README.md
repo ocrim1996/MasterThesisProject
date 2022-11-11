@@ -7,5 +7,5 @@
 A fundamental point of the SMO algorithm is the choice of the starting point from which to start the optimization process. Various initialization strategies have been proven in this thesis and various experiments, but the one that has given better results in terms of computational performance, was that relating to the multi-start strategy based on the **convexity graph** associated with the starting problem (**SMO-CG**). These experiments have shown that SMO-CG is a valid alternative to the state of the art algorithm for standard quadratic problems (StQPs).
 
 ## Files
-- Thesis (in italian) → [PDF](thesis/thesis.pdf)
-- Presentation (in italian) → [PDF](thesis/presentation.pdf)
+- Thesis (in italian) → [PDF](thesis_pdf/thesis.pdf)
+- Presentation (in italian) → [PDF](thesis_pdf/presentation.pdf)

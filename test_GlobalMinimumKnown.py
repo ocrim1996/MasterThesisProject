@@ -27,10 +27,12 @@ for prob_file_name in prob_file_names:
     smo_counts_list = []
     solutions = []
 
+    param = 5
+
     for i in range(10):
         start_time = tm.default_timer()
-        solution, smo_counts = problemSMO.solve_problem_multistart_random_points(problem_name)
-        #solution, smo_counts = problemSMO.solve_problem_multistart_random_points_perturbation(problem_name, 5)
+        #solution, smo_counts = problemSMO.solve_problem_multistart_random_points(problem_name)
+        solution, smo_counts = problemSMO.solve_problem_multistart_random_points_perturbation(problem_name, param)
         stop_time = tm.default_timer()
         time_exe = stop_time - start_time
 
@@ -45,6 +47,7 @@ for prob_file_name in prob_file_names:
     print("\nPROBLEM:", prob_file_name.split("/")[2][:-4])
     #print("Parametri --> Nmax: {}, Mmax: {}".format(param[0], param[1]))
     #print("Parametri --> Nmax: {}".format(param))
+    print("Parametri --> Mmax: {}".format(param))
     print("Objective function minimum:", min(solutions))
     print("Avg minimization time:", avg_time)
     print("Numero (medio) chiamate a SMO:", avg_smo_counts)

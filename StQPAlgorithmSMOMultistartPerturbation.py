@@ -1,4 +1,5 @@
 import copy
+import math
 import numpy as np
 import TwoDimensionProblemStQP as tdp
 import perturbation as pb
@@ -114,8 +115,10 @@ class SMOAlgorithm:
 
     # Risolve i vari passi dell'algoritmo SMO Multistart applicato a problemi StQP.
     def solve_problem_multistart_ones(self):
-        solSmo, _ = self.solve_problem(self.vectorX)
+        #solSmo, _ = self.solve_problem(self.vectorX)
+        solSmo = np.Inf
         # bestX = self.vectorX
+        i_best = -1
 
         # Genera tutte le possibili combinazioni di punti iniziali (1,0, . . .,0), (0,1,0, . . .,0), ..., (0,0, . . .,1)
         for i in range(0, self.n):
@@ -128,9 +131,56 @@ class SMOAlgorithm:
             tmp, _ = self.solve_problem(self.vectorX)
             if tmp < solSmo:
                 solSmo = tmp
-                # bestX = self.vectorX
+                i_best = i
+                bestX = self.vectorX
+
+        return solSmo, i_best, bestX
+
+    # SMO parte da i_best (0,0,0,1,0,0,0,0) dove l'1 è all'indice i_best.
+    def solve_problem_multistart_ones_i_best(self, i_best_prob):
+        solSmo = np.Inf
+        self.vectorX = np.zeros(self.n, dtype=float)
+        self.vectorX[i_best_prob] = 1.0
+        self.vectorG = np.dot(self.Q, self.vectorX) + self.vectorC
+        self.mx = 1.
+        self.MX = -1.
+
+        tmp, _ = self.solve_problem(self.vectorX)
+        if tmp < solSmo:
+            solSmo = tmp
+            bestX = self.vectorX
+            nonzero_indices_bestX = np.nonzero(bestX != 0)[0]
+
+        return solSmo, nonzero_indices_bestX
+
+    # SMO parte da (0,0,1/2,0,0,1/2,0,0) dove 1/2 è agli indici i e j_hat.
+    def solve_problem_multistart_two_indices(self, starting_point):
+        solSmo = np.Inf
+        self.vectorX = starting_point
+        self.vectorG = np.dot(self.Q, self.vectorX) + self.vectorC
+        self.mx = 1.
+        self.MX = -1.
+
+        tmp, _ = self.solve_problem(self.vectorX)
+        if tmp < solSmo:
+            solSmo = tmp
 
         return solSmo
+
+    # Risolve i vari passi dell'algoritmo SMO Multistart utilizzando il grafo di complessità come punti di partenza.
+    def solve_problem_multistart_convexity_graph(self, sp):
+        solSmo = np.Inf
+        starting_points = sp
+
+        for starting_point in starting_points:
+            self.vectorX = starting_point
+            tmp, _ = self.solve_problem(self.vectorX)
+            if tmp < solSmo:
+                solSmo = tmp
+                bestX = self.vectorX
+                nonzero_indices_bestX = np.nonzero(bestX != 0)[0]
+
+        return solSmo, nonzero_indices_bestX
 
     """
     # Risolve i vari passi dell'algoritmo SMO Multistart applicato a problemi StQP.
@@ -185,7 +235,7 @@ class SMOAlgorithm:
         return f_star
     """
 
-    """
+
     # Risolve i vari passi dell'algoritmo SMO Multistart applicato a problemi StQP.
     def solve_problem_multistart_random_points(self, n_max):
         N_max = n_max
@@ -194,7 +244,8 @@ class SMOAlgorithm:
         N = 0
         smo_counts = 0
         while N <= N_max:
-            self.vectorX = uf.create_vector_uniform(self.n)
+            #self.vectorX = uf.create_vector_uniform(self.n)
+            self.vectorX = uf.create_random_vector(self.n)
             tmp, _ = self.solve_problem(self.vectorX)
             smo_counts = smo_counts + 1
 
@@ -217,7 +268,8 @@ class SMOAlgorithm:
         smo_counts = 0
         while N < N_max:
 
-            self.vectorX = uf.create_vector_uniform(self.n)
+            #self.vectorX = uf.create_vector_uniform(self.n)
+            self.vectorX = uf.create_random_vector(self.n)
             solSmo, vectX = self.solve_problem(self.vectorX)
             smo_counts = smo_counts + 1
 
@@ -239,9 +291,9 @@ class SMOAlgorithm:
                 N = N + 1
 
         return f_star, smo_counts
-    """
 
-    # Risolve i vari passi dell'algoritmo SMO Multistart applicato a problemi StQP.
+    """
+    # Known Global optimum and SMO Counts.
     def solve_problem_multistart_random_points(self, problem):
         f_star = np.Inf
         global_optimum = go.optima[problem]
@@ -256,12 +308,12 @@ class SMOAlgorithm:
             if tmp < f_star:
                 f_star = tmp
 
-            if format(f_star, '.6f') == format(global_optimum, '.6f'):
+            if math.isclose(f_star, global_optimum, rel_tol=1e-6):
                 is_not_global_optimum = False
 
         return f_star, smo_counts
 
-    # Risolve i vari passi dell'algoritmo SMO Multistart con Perturbazione (ILS) applicato a problemi StQP.
+    # Known Global optimum + ILS and SMO Counts.
     def solve_problem_multistart_random_points_perturbation(self, problem, m_max):
 
         M_max = m_max
@@ -288,16 +340,17 @@ class SMOAlgorithm:
                 else:
                     M = M + 1
 
-                if format(solSmo, '.6f') == format(global_optimum, '.6f'):
+                if math.isclose(solSmo, global_optimum, rel_tol=1e-6):
                     return solSmo, smo_counts
 
             if solSmo < f_star:
                 f_star = solSmo
 
-            if format(f_star, '.6f') == format(global_optimum, '.6f'):
+            if math.isclose(f_star, global_optimum, rel_tol=1e-6):
                 is_not_global_optimum = False
 
         return f_star, smo_counts
+    """
 
     # Multistart con Perturbazioni
     def solve_problem_multistart_perturbation(self):
